@@ -75,5 +75,9 @@ All routes begin from the host route (eg http://localhost/login).
 * will return a 500 internal server error if sending email fails.
 * The value of `account` refers to the name of a file that exists within the `info` directory inside the `src` directory, which will need to be created and populated.
 
+### Notes for non-MySQL databases
+
+In order for the system to work with non-MySQL databases, the requisite gem for the specific database will have to be acquired, the Gemfile will have to be altered to deal with it, and in `DB.rb`, the connector type will have to be altered to the connector being used. Refer to the documentation for your specific database (or search online) to determine if it's possible to convert the provided example data to the format used by your database.
+
 ### See also
 * [banking-with-retrofit](https://github.com/JudgeZarbi/banking-with-retrofit) - An example client to work with this backend, written for Android using retrofit.
