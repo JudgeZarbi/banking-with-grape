@@ -28,55 +28,51 @@ module Banking
       post :transfer do
         if authenticate?(params[:token])
           id_from = user_id_from_token(params[:token])
-          if account_belongs_to(id_from, params[:acct_no])
-            if valid_transfer?(id_from, params[:acct_to])
-              if payment_allowed?(params[:acct_no], params[:amount])
-                # Get details to use in transactions
-                from_acc = DB[:Account].where(AcctNo: params[:acct_no]).first
-                to_acc = DB[:Account].where(AcctNo: params[:acct_to]).first
-                cur_balance = from_acc[:Balance] * 100
-                to_cur_balance = to_acc[:Balance] * 100
-                name = formatted_name(DB[:Customer]
-                       .where(UserID: from_acc[:UserID]).first)
-                sort_code = from_acc[:SortCode]
-                # This updates, in order:
-                #  -The account the money is leaving
-                #  -The transaction with the money leaving the account
-                #  -The transaction with the money entering the second account
-                #  -The account the money is going into
-                DB[:Account].where(AcctNo: params[:acct_no])
-                  .update(Balance: (cur_balance - params[:amount].to_i)
-                  .fdiv(100))
-                DB[:Transactions].insert(ID: SecureRandom.uuid,
-                                         AcctNo: params[:acct_no],
-                                         Date: Time.now.to_i,
-                                         Change: (params[:amount].to_i * -1)
-                                                 .fdiv(100),
-                                         Balance: (cur_balance - params[:amount]
-                                                  .to_i).fdiv(100),
-                                         Desc: name + ' ' << params[:acct_to] <<
-                                               ' ' << sort_code)
-                DB[:Transactions].insert(ID: SecureRandom.uuid,
-                                         AcctNo: params[:acct_to],
-                                         Date: Time.now.to_i,
-                                         Change: params[:amount].to_i.fdiv(100),
-                                         Balance: (to_cur_balance +
-                                                   params[:amount]
-                                                  .to_i).fdiv(100),
-                                         Desc: name + ' ' << params[:acct_no] <<
-                                               ' ' << sort_code)
-                DB[:Account].where(AcctNo: params[:acct_to])
-                  .update(Balance: (to_cur_balance + params[:amount].to_i)
-                  .fdiv(100))
-                { auth: true, success: true }
-              else
-                { auth: true, success: false, reason: 'balance' }
-              end
-            else
-              { auth: true, success: false, reason: 'account' }
-            end
-          else
+          case
+          when !account_belongs_to?(id_from, params[:acct_no])
             { auth: true, success: false, reason: 'user' }
+          when !valid_transfer?(id_from, params[:acct_to])
+            { auth: true, success: false, reason: 'account' }
+          when !payment_allowed?(params[:acct_no], params[:amount])
+            { auth: true, success: false, reason: 'balance' }
+          else
+            # Get details to use in transactions
+            from_acc = DB[:Account].where(AcctNo: params[:acct_no]).first
+            to_acc = DB[:Account].where(AcctNo: params[:acct_to]).first
+            cur_balance = from_acc[:Balance] * 100
+            to_cur_balance = to_acc[:Balance] * 100
+            name = formatted_name(DB[:Customer]
+                   .where(UserID: from_acc[:UserID]).first)
+            sort_code = from_acc[:SortCode]
+            # This updates, in order:
+            #  -The account the money is leaving
+            #  -The transaction with the money leaving the account
+            #  -The transaction with the money entering the second account
+            #  -The account the money is going into
+            DB[:Account].where(AcctNo: params[:acct_no])
+              .update(Balance: (cur_balance - params[:amount].to_i).fdiv(100))
+            DB[:Transactions].insert(ID: SecureRandom.uuid,
+                                     AcctNo: params[:acct_no],
+                                     Date: Time.now.to_i,
+                                     Change: (params[:amount].to_i * -1)
+                                             .fdiv(100),
+                                     Balance: (cur_balance - params[:amount]
+                                              .to_i).fdiv(100),
+                                     Desc: name + ' ' << params[:acct_to] <<
+                                           ' ' << sort_code)
+            DB[:Transactions].insert(ID: SecureRandom.uuid,
+                                     AcctNo: params[:acct_to],
+                                     Date: Time.now.to_i,
+                                     Change: params[:amount].to_i.fdiv(100),
+                                     Balance: (to_cur_balance +
+                                               params[:amount]
+                                              .to_i).fdiv(100),
+                                     Desc: name + ' ' << params[:acct_no] <<
+                                           ' ' << sort_code)
+            DB[:Account].where(AcctNo: params[:acct_to])
+              .update(Balance: (to_cur_balance + params[:amount].to_i)
+              .fdiv(100))
+            { auth: true, success: true }
           end
         else
           { auth: false }
