@@ -15,6 +15,8 @@ This project was built as part of a computer science team project module. As suc
 
 5. Launch the shell file to kick it into action.
 
+6. The three device files contain the usernames and passwords for the example data (they are hashed and salted in the database, so it's not easily possible to recover them), use the username and password along with the file name as the device id to log in.
+
 **Note:** This is confirmed working on Ubuntu, not tested on Windows.
 
 ## Routes
