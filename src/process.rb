@@ -92,7 +92,7 @@ module Banking
           when !account_belongs_to?(id_from, params[:acct_no])
             { auth: true, success: false, reason: 'user' }
           when !valid_payee?(id_from, params[:acct_to])
-            { auth: true, success: false, reason: 'account' }
+            { auth: true, success: false, reason: 'payee' }
           when !payment_allowed?(params[:acct_no], params[:amount])
             { auth: true, success: false, reason: 'balance' }
           else
