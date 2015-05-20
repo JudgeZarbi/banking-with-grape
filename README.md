@@ -52,6 +52,7 @@ All routes begin from the host route (eg http://localhost/login).
 * returns `{ auth: false }` if the token is invalid.
 * returns `{ auth: true, success: false, reason: "balance" } ` if there is not enough money in the account to cover the transfer.
 * returns `{ auth: true, success: false, reason: "account" } ` if the account given does not belong to the same user
+* returns `{ auth: true, success: false, reason: "user" }` if the account the money is leaving does not belong to the same user as the token.
 * returns `{ auth: true, success: true}` if the transfer is successful.
 * Transfers can only be done between accounts belonging to the same user.
 
