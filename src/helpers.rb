@@ -117,9 +117,6 @@ module Banking
       # Get the user ID from the record for the specified account
       # then return whether it's equal to the user ID given.
       def account_belongs_to?(user, acct_no)
-        puts(DB[:Account].where(AcctNo: acct_no).first[:UserID])
-        puts(acct_no)
-        puts(user)
         acct_user = DB[:Account].where(AcctNo: acct_no).first[:UserID]
         acct_user == user
       end
