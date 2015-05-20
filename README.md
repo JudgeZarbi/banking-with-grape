@@ -61,6 +61,7 @@ All routes begin from the host route (eg http://localhost/login).
 * returns `{ auth: false }` if the token is invalid.
 * returns `{ auth: true, success: false, reason: "balance" } ` if there is not enough money in the account to cover the payment.
 * returns `{ auth: true, success: false, reason: "payee" } ` if the payee is not in the list of payees for the user.
+* returns `{ auth: true, success: false, reason: "user" }` if the account the money is leaving does not belong to the same user as the token.
 * returns `{ auth: true, success: true}` if the payment is successful.
 * Payments are done between accounts belonging to different users.
 
