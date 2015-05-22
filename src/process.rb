@@ -28,6 +28,7 @@ module Banking
       post :transfer do
         if authenticate?(params[:token])
           id_from = user_id_from_token(params[:token])
+          update_token(params[:token])
           case
           when !account_belongs_to?(id_from, params[:acct_no])
             { auth: true, success: false, reason: 'user' }
@@ -88,6 +89,7 @@ module Banking
       post :payment do
         if authenticate?(params[:token])
           id_from = user_id_from_token(params[:token])
+          update_token(params[:token])
           case
           when !account_belongs_to?(id_from, params[:acct_no])
             { auth: true, success: false, reason: 'user' }
