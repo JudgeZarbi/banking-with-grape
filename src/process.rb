@@ -20,14 +20,16 @@ module Banking
 
       # Transfer money from one account to another belonging to the
       # same user.
-      # Does the usual token-checking stuff, then determines if the
-      # account the money is coming from belongs to the same user as
-      # the token, then checks the account the money is going to
-      # belongs to the same account, then checks there's enough
-      # money to move, and then goes ahead and does it.
+      # Does the usual token-checking stuff and updates the token,
+      # then determines if the account the money is coming from
+      # belongs to the same user as the token, then checks the
+      # account the money is going to belongs to the same account,
+      # then checks there's enough money to move, and then goes
+      # ahead and does it.
       post :transfer do
         if authenticate?(params[:token])
           id_from = user_id_from_token(params[:token])
+          update_token(params[:token])
           case
           when !account_belongs_to?(id_from, params[:acct_no])
             { auth: true, success: false, reason: 'user' }
@@ -81,13 +83,14 @@ module Banking
 
       # Make a payment from one account to another belonging to a
       # different user.
-      # Does the usual token-checking stuff, then determines if the
-      # account the money is going to is a valid payee for that user,
-      # then checks there's enough money to move, and then goes ahead
-      # and does it.
+      # Does the usual token-checking stuff and updates the token,
+      # then determines if the account the money is going to is a
+      # valid payee for that user, then checks there's enough
+      # money to move, and then goes ahead and does it.
       post :payment do
         if authenticate?(params[:token])
           id_from = user_id_from_token(params[:token])
+          update_token(params[:token])
           case
           when !account_belongs_to?(id_from, params[:acct_no])
             { auth: true, success: false, reason: 'user' }
